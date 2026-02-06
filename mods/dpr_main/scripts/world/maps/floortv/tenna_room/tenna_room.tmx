@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.11" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="41" height="24" tilewidth="40" tileheight="40" infinite="0" nextlayerid="20" nextobjectid="150">
+<map version="1.11" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="41" height="24" tilewidth="40" tileheight="40" infinite="0" nextlayerid="20" nextobjectid="152">
  <editorsettings>
   <export target="data.lua" format="lua"/>
  </editorsettings>
@@ -201,6 +201,13 @@
     <property name="cutscene" value="tvfloor.green_wvending"/>
     <property name="solid" type="bool" value="true"/>
    </properties>
+  </object>
+  <object id="151" name="npc" x="720" y="640">
+   <properties>
+    <property name="actor" value="spamtenna"/>
+    <property name="cutscene" value="tennaroom.sptenna"/>
+   </properties>
+   <point/>
   </object>
  </objectgroup>
  <layer id="7" name="above" width="41" height="24">

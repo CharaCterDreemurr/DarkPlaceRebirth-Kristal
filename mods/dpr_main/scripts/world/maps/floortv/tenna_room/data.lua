@@ -10,7 +10,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 20,
-  nextobjectid = 150,
+  nextobjectid = 152,
   properties = {
     ["border"] = "green_room",
     ["music"] = "deltarune/baci_perugina"
@@ -702,6 +702,22 @@ return {
           properties = {
             ["cutscene"] = "tvfloor.green_wvending",
             ["solid"] = true
+          }
+        },
+        {
+          id = 151,
+          name = "npc",
+          type = "",
+          shape = "point",
+          x = 720,
+          y = 640,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["actor"] = "spamtenna",
+            ["cutscene"] = "tennaroom.sptenna"
           }
         }
       }
