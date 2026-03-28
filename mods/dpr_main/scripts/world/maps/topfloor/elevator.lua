@@ -10,11 +10,12 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 11,
-  nextobjectid = 71,
+  nextobjectid = 72,
   properties = {
     ["border"] = "titan",
     ["music"] = "topfloor",
-    ["name"] = "Top Floor - Elevator"
+    ["name"] = "Top Floor - Elevator",
+    ["serious"] = true
   },
   tilesets = {
     {
@@ -77,7 +78,7 @@ return {
       properties = {},
       encoding = "lua",
       data = {
-        26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+        26, 26, 26, 26, 26, 26, 9, 26, 26, 26, 7, 26, 26, 26, 26, 26,
         9, 20, 2, 20, 2, 20, 3, 8, 8, 8, 1, 20, 2, 20, 2, 20,
         9, 8, 8, 8, 28, 8, 9, 26, 26, 26, 7, 8, 8, 8, 30, 8,
         9, 4, 5, 6, 8, 8, 9, 8, 8, 8, 7, 8, 4, 5, 6, 8,
@@ -400,17 +401,18 @@ return {
         },
         {
           id = 8,
-          name = "dogconegroup",
+          name = "transition",
           type = "",
           shape = "rectangle",
-          x = 600,
+          x = 640,
           y = 240,
           width = 40,
           height = 160,
           rotation = 0,
           visible = true,
           properties = {
-            ["default_state"] = true
+            ["map"] = "topfloor/ambush",
+            ["marker"] = "west"
           }
         },
         {
@@ -545,6 +547,19 @@ return {
           shape = "point",
           x = 340,
           y = 340,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 71,
+          name = "east",
+          type = "",
+          shape = "point",
+          x = 600,
+          y = 320,
           width = 0,
           height = 0,
           rotation = 0,

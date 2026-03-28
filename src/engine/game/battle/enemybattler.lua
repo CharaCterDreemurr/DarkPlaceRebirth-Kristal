@@ -60,7 +60,7 @@
 ---@field defeated          boolean             Whether this enemy has been defeated
 ---
 ---@field temporary_mercy           number              The current amount of temporary mercy
----@field temporary_mercy_percent   DamageNumber|nil    The DamageNumber object, used to update the mercy display
+---@field temporary_mercy_percent   DamageNumber?    The DamageNumber object, used to update the mercy display
 ---
 ---@field target_x                  number?
 ---@field target_y                  number?
@@ -150,6 +150,18 @@ function EnemyBattler:init(actor, use_overlay)
     self.temporary_mercy_percent = nil
 
     self.graze_tension = 1.6 -- (1/10 of a defend, or cheap spell)
+
+    -- An enemies elemental resistances.
+    self.resistances = {
+        ELEC = 1,
+        FIRE = 1,
+        STAR = 1,
+        DARK = 1,
+        RUDE = 1,
+        RED = 1,
+        ICE = 1,
+        HOLY = 1,
+    }
 end
 
 --- *(Override)* Get what this enemy's HP should display in the enemy select menu.
@@ -213,8 +225,14 @@ function EnemyBattler:registerAct(name, description, party, tp, highlight, icons
     if type(party) == "string" then
         if party == "all" then
             party = {}
-            for _, battler in ipairs(Game.battle.party) do
-                table.insert(party, battler.chara.id)
+            if Game.battle ~= nil then
+                for _, battler in ipairs(Game.battle.party) do
+                    table.insert(party, battler.chara.id)
+                end
+            else
+                for _, chara in ipairs(Game.party) do
+                    table.insert(party, chara.id)
+                end
             end
         else
             party = { party }
@@ -247,8 +265,14 @@ function EnemyBattler:registerShortAct(name, description, party, tp, highlight, 
     if type(party) == "string" then
         if party == "all" then
             party = {}
-            for _, battler in ipairs(Game.battle.party) do
-                table.insert(party, battler.chara.id)
+            if Game.battle ~= nil then
+                for _, battler in ipairs(Game.battle.party) do
+                    table.insert(party, battler.chara.id)
+                end
+            else
+                for _, chara in ipairs(Game.party) do
+                    table.insert(party, chara.id)
+                end
             end
         else
             party = { party }
@@ -281,8 +305,14 @@ function EnemyBattler:registerActFor(char, name, description, party, tp, highlig
     if type(party) == "string" then
         if party == "all" then
             party = {}
-            for _, battler in ipairs(Game.battle.party) do
-                table.insert(party, battler.chara.id)
+            if Game.battle ~= nil then
+                for _, battler in ipairs(Game.battle.party) do
+                    table.insert(party, battler.chara.id)
+                end
+            else
+                for _, chara in ipairs(Game.party) do
+                    table.insert(party, chara.id)
+                end
             end
         else
             party = { party }
@@ -314,8 +344,14 @@ function EnemyBattler:registerShortActFor(char, name, description, party, tp, hi
     if type(party) == "string" then
         if party == "all" then
             party = {}
-            for _, battler in ipairs(Game.battle.party) do
-                table.insert(party, battler.id)
+            if Game.battle ~= nil then
+                for _, battler in ipairs(Game.battle.party) do
+                    table.insert(party, battler.chara.id)
+                end
+            else
+                for _, chara in ipairs(Game.party) do
+                    table.insert(party, chara.id)
+                end
             end
         else
             party = { party }
@@ -437,14 +473,8 @@ function EnemyBattler:onSpareable()
 end
 
 --- Adds (or removes) mercy from this enemy
----@param amount number
+---@param amount number The amount of mercy being added (or removed, if set to negative)
 function EnemyBattler:addMercy(amount)
-    if (amount >= 0 and self.mercy >= 100) or (amount < 0 and self.mercy <= 0) then
-        -- We're already at full mercy and trying to add more; do nothing.
-        -- Also do nothing if trying to remove from an empty mercy bar.
-        return
-    end
-
     self.mercy = self.mercy + amount
     if self.mercy < 0 then
         self.mercy = 0
@@ -549,7 +579,7 @@ function EnemyBattler:onMercy(battler)
 end
 
 --- Creates the particular flash effect used when a party member uses mercy on the enemy, but the spare fails
----@param color? table The color the enemy should flash (defaults to yellow)
+---@param color? Color The color the enemy should flash (defaults to yellow)
 function EnemyBattler:mercyFlash(color)
     color = color or { 1, 1, 0 }
 
@@ -757,7 +787,7 @@ end
 ---@param amount        number                                  The amount of damage the enemy should take
 ---@param battler?      PartyBattler                            The party member dealing this damage
 ---@param on_defeat?    fun(EnemyBattler, number, PartyBattler) A callback to run if the enmy is defeated by this hit
----@param color?        table                                   The color of the damage, overriding the default damage color of the attacker
+---@param color?        Color                                   The color of the damage, overriding the default damage color of the attacker
 ---@param show_status?  boolean                                 Whether to show the damage numbers from this hit
 ---@param attacked?     boolean
 function EnemyBattler:hurt(amount, battler, on_defeat, color, show_status, attacked)
@@ -1051,7 +1081,7 @@ function EnemyBattler:defeat(reason, violent)
     elseif MagicalGlassLib then -- Compactability with Magical-Glass: Redux
         Game.battle.xp = Game.battle.xp + self.experience -- MGR reduces EXP gain from not killing, so basically, this just makes sure that the enemy adds 0 EXP
     end
-    
+
     if self:isRecruitable() and type(self:getRecruitStatus()) == "number" and (self.done_state == "PACIFIED" or self.done_state == "SPARED") then
         self:setRecruitStatus(self:getRecruitStatus() + 1)
         if Game:getConfig("enableRecruits") then
@@ -1068,7 +1098,7 @@ function EnemyBattler:defeat(reason, violent)
             end
         end
     end
-    
+
     Game.battle.money = Game.battle.money + self.money
 
     Game.battle:removeEnemy(self, true)
@@ -1145,6 +1175,15 @@ end
 ---@return number new_value
 function EnemyBattler:addFlag(flag, amount)
     return Game:addFlag("enemy#" .. self.id .. ":" .. flag, amount)
+end
+
+function EnemyBattler:getResistance(element)
+    for i, resist in pairs(self.resistances) do
+        if i == element then
+            return resist
+        end
+    end
+    return 1
 end
 
 return EnemyBattler

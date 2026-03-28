@@ -24,6 +24,8 @@ FOLLOW_DELAY = 0.4
 
 BATTLE_LAYERS = {
     ["bottom"]         = -1000,
+    ["background"]     = -750,
+    ["darkener"]       = -500,
     ["below_battlers"] = -200,
     ["battlers"]       = -100,
     ["above_battlers"] = 0, --┰-- 0
@@ -224,6 +226,7 @@ KRISTAL_EVENT = {
     --gameplay events--
     onBorderDraw = "onBorderDraw", -- game border draw time / at: [HOOK]love.draw(...)J\love.load(args) / passes: string:border, love.Image:border_texture / returns: NONE
     onFootstep = "onFootstep", -- character walk cycle advances / at: Character:onFootstep(num) / passes: Character:self, int:num / returns: NONE
+    onGameOver = "onGameOver", -- overrides game over / at: Game:gameOver(x, y) / passes: int:x, int:y / returns: nil|bool
 
     --game variable events--
     getConfig = "getConfig", -- intercept mod's config value / at: Game:getConfig(key, merge, deep_merge) / passes: string:key / returns: nil|any

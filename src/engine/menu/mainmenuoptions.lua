@@ -5,7 +5,7 @@
 ---@field state string
 ---@field state_manager StateManager
 ---
----@field options table<string, {id: string, name: string, options: {name: string, value: (fun(x:number, y:number):any)|nil, callback: fun()}[]}>
+---@field options table<string, {id: string, name: string, options: {name: string, value: (fun(x:number, y:number):any)?, callback: fun()}[]}>
 ---@field pages string[]
 ---
 ---@field selected_option number
@@ -70,6 +70,9 @@ function MainMenuOptions:init(menu)
     self.scroll_speed2 = 1
 	
     self.dog_balloon_siner = 0
+	self.dog_talk_frame = 0
+	self.dog_retro_frame = 0
+	self.dog_talking = false
 	
     self.clouds_1 = Assets.getTexture("kristal/options_clouds1")
     if self.retro then
@@ -83,7 +86,14 @@ function MainMenuOptions:init(menu)
     if self.retro then
         self.moon = Assets.getTexture("kristal/options_platform")
     end
-    self.dog = Assets.getTexture("kristal/dog_balloon")
+    self.dog = Assets.getFrames("kristal/dog_balloon")
+    if self.retro then
+        self.dog = Assets.getFrames("kristal/dog_retro")
+    end
+    self.dialogue_bubble = Assets.getTexture("bubbles/long_right")
+    if self.retro then
+        self.dialogue_bubble = Assets.getTexture("bubbles/long_right_retro")
+    end
 end
 
 function MainMenuOptions:registerEvents()
@@ -157,10 +167,26 @@ function MainMenuOptions:update()
     self.state_manager:update()
     
     self.menu.kristal_stage_title.visible = false
+	
+	if self.dog_talking then
+		if self.retro then
+			self.dog_retro_frame = self.dog_retro_frame + 0.3 * DTMULT
+		end
+		self.dog_talk_frame = self.dog_talk_frame + 0.3 * DTMULT
+		if self.dog_talk_frame >= 10 then
+			self.dog_talk_frame = 0
+			self.dog_talking = false
+		end
+	elseif self.retro then
+		self.dog_retro_frame = self.dog_retro_frame + 0.1 * DTMULT
+	end
 end
 
 function MainMenuOptions:draw()
     local offset = math.sin(self.dog_balloon_siner * 0.1) * 15
+	if self.retro then
+		offset = math.sin(self.dog_balloon_siner * 0.04) * 32
+	end
 
     if self.retro then
         Draw.setColor(0.36, 0.58, 0.99, 1)
@@ -177,12 +203,29 @@ function MainMenuOptions:draw()
         Draw.drawWrapped(self.clouds_2, true, false, (self.clouds2_x - 640), 270, 0, 1, 1)
     end
     if not self.retro then
-        Draw.draw(self.dog, 536, 296 + offset, 0, 2, 2)
-    end
+        Draw.draw(self.dog[math.floor(self.dog_talk_frame % 2) + 1], 556, 296 + offset, 0, 2, 2)
+	end
     if self.retro then
         Draw.drawWrapped(self.clouds_1, true, false, (self.clouds1_x - 640), 260, 0, 1, 1)
+        Draw.draw(self.dog[math.floor(self.dog_retro_frame % 2) + 1], 560, 360 + math.floor(offset / 2) * 2, 0, 2, 2)
+        Draw.draw(self.dialogue_bubble, 560, 330 + math.floor(offset / 2) * 2, 0, -2, 2)
     else
         Draw.drawWrapped(self.clouds_1, true, false, (self.clouds1_x - 640), 380, 0, 1, 1)
+        Draw.draw(self.dialogue_bubble, 556, 330 + offset, 0, -1, 1)
+    end
+
+    if self.retro then
+        love.graphics.setFont(Assets.getFont("8bit"))
+        Draw.setColor(COLORS.black)
+        love.graphics.print(string.upper(self:getOptionText()) or "TEST FUCKING\nOPTIONS\nDIALOGUE", 424, 336 + math.floor(offset / 2) * 2, 0, 0.5, 0.5)
+        Draw.setColor(COLORS.white)
+        love.graphics.setFont(Assets.getFont("main"))
+	else
+        love.graphics.setFont(Assets.getFont("plain"))
+        Draw.setColor(COLORS.black)
+        love.graphics.print(self:getOptionText() or "test FUCKING\noptions\ndialogue", 414, 332 + offset)
+        Draw.setColor(COLORS.white)
+        love.graphics.setFont(Assets.getFont("main"))
     end
 
     local menu_font = Assets.getFont("main")
@@ -338,6 +381,8 @@ function MainMenuOptions:onKeyPressedMenu(key, is_repeat)
 
     if move_noise then
         Assets.stopAndPlaySound("ui_move")
+		self.dog_talk_frame = 1
+		self.dog_talking = true
     end
 
     if Input.isConfirm(key) then
@@ -760,6 +805,68 @@ function MainMenuOptions:initializeOptions()
 
 end
 
+function MainMenuOptions:getOptionText()
+    local text = nil
+    local page_1 = {
+        "change how\nloud the\ngame is",
+        "change what\nkeys do what\nactions",
+        "change what\ncontroller\nbuttons\ndo what\nactions",
+        "change\nwhether you\nrun by\ndefault",
+        "if enabled,\ngives a\ncustom\ndiscord\nstatus",
+        "toggles\nfullscreen",
+        "change the\nwindow scale\nfor windowed\nmode",
+        "whether or\nnot the game\nwill have\na border",
+        "simplifies\nvisual fx for\nthose with\nphoto-\nsensitivity",
+        "i have no\nidea what\nthis does \n\nlol",
+        "go back\nto the\nmain menu"
+    }
+    local page_2 = {
+        "toggles\nfullscreen",
+        "change the\nwindow scale\nfor windowed\nmode",
+        "whether or\nnot the game\nwill have\na border",
+        "simplifies\nvisual fx for\nthose with\nphoto-\nsensitivity",
+        "sets the\ntarget fps",
+        "toggles\nvsync",
+        "toggles\nframe skip",
+        "does some-\nthing and\nbreaks the\noptions\nmusic",
+        "go back\nto the\nmain menu"
+    }
+    local page_3 = {
+        "toggles\nskipping the\nintro when\nopening\nthe game",
+        "toggles\ndisplaying\nthe current\nfps count",
+        "change the\ndefault name\nfor save\nfiles",
+        "toggles\nskipping the\nsave file\nname entry",
+        "toggles\nkristal's\ndebug hot-\nkeys",
+        "i have no\nidea what\nthis does \n\nlol",
+        "show the\nsystem's\nmouse cursor\ninstead of\nkristal's",
+        "show the\nmouse cursor\nalways",
+        "instantly\nclose the\ngame when\npressing\nESC",
+        "go back\nto the\nmain menu"
+    }
+    local page_4 = {
+        "whether to\nuse the\ngoner key-\nboard when\ntyping",
+        "enables\nshatter\nif it's\ninstalled",
+        "manage\ninstalled\nplugins",
+        "i have no\nidea what\nthis does \n\nlol",
+        "when\nattacking,\nuse z, x,\nand c instead\nof just z",
+        "wheter to\nuse special\nanimations\nwhen running",
+        "enable an\nungodly\namount of\nbloom",
+        "go back\nto the\nmain menu"
+    }
+
+    if self.selected_page == 1 then
+        text = page_1[self.selected_option]
+    elseif self.selected_page == 2 then
+        text = page_2[self.selected_option]
+    elseif self.selected_page == 3 then
+        text = page_3[self.selected_option]
+    elseif self.selected_page == 4 then
+        text = page_4[self.selected_option]
+    end
+
+    return text
+end
+
 -------------------------------------------------------------------------------
 -- Noel the Nobody
 -- please ignore :)
@@ -780,9 +887,13 @@ function MainMenuOptions:noel_char()
     if self.noel2 then
         --for the update function
         --dont forget this sad diamond man you dumbass
-        local angle = Utils.angle(self.menu.heart.x, self.menu.heart.y, self.noel.x + 4, self.noel.y - 18)
+        local angle = MathUtils.angle(self.menu.heart.x, self.menu.heart.y, self.noel.x + 4, self.noel.y - 18)
         --print(angle)
-        self.noel2.y = -angle*10 + self.noel.y
+		if self.retro then
+			self.noel2.y = math.floor((-angle*10) / 2) * 2 + self.noel.y
+		else
+			self.noel2.y = -angle*10 + self.noel.y
+		end
         self.noel2.x = self.noel.x 
     else
 

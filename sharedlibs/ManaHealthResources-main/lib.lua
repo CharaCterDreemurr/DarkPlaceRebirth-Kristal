@@ -69,9 +69,9 @@ function Lib:init()
 
     HookSystem.hook(PartyMember, "increaseStat", function(orig, self, stat, amount, max)
         orig(self, stat, amount, max)
-        local base_stats = self:getBaseStats()
-        base_stats[stat] = (base_stats[stat] or 0) + amount
         if stat == "mana" then
+            local base_stats = self:getBaseStats()
+            base_stats[stat] = (base_stats[stat] or 0) + amount
             self:setMana(math.min(self:getMana() + amount, base_stats[stat]))
         end
     end)
@@ -440,6 +440,15 @@ function Lib:init()
             Draw.setColor(PALETTE["action_fill"])
             love.graphics.rectangle("fill", 2, Game:getConfig("oldUIPositions") and 3 or 2, 209, Game:getConfig("oldUIPositions") and 34 or 35)
 
+            if self.actbox.battler.succumbed then
+                love.graphics.setFont(self.font)
+                Draw.setColor(1, 0, 0)
+                love.graphics.print("SUCCUMBED", 129, 14 - self.actbox.data_offset)
+
+                Object.draw(self)
+                return
+            end
+
             ------------Health Bar--------------
             Draw.setColor(PALETTE["action_health_bg"])
             love.graphics.rectangle("fill", 125, 6 - self.actbox.data_offset, 81, 12)
@@ -549,6 +558,15 @@ function Lib:init()
 
             Draw.setColor(PALETTE["action_health_bg"])
             love.graphics.rectangle("fill", 128, 22 - self.actbox.data_offset, 76, 9)
+
+            if self.actbox.battler.succumbed then
+                love.graphics.setFont(self.font)
+                Draw.setColor(1, 0, 0)
+                love.graphics.print("SUCCUMBED", 129, 9 - self.actbox.data_offset)
+
+                Object.draw(self)
+                return
+            end
 
             local health = (self.actbox.battler.chara:getHealth() / self.actbox.battler.chara:getStat("health")) * 76
 
@@ -715,8 +733,17 @@ function Lib:init()
         end
 
         if self.state == "SPELLS" then
-            Draw.setColor(Game:getSoulColor())
-            Draw.draw(self.heart_sprite, tp_x - 20, tp_y + 10 + ((self.selected_spell - self.scroll_y) * 25))
+            local party = Game.battle.party[Game.battle.current_selecting].chara
+            if party.soul_color then
+                Draw.setColor(party.soul_color)
+            else
+                Draw.setColor(Game.battle.encounter:getSoulColor())
+            end
+            local heart_sprite = Assets.getTexture("player/"..party:getSoulFacing().."/heart")
+            if party.heart_sprite then
+                heart_sprite = Assets.getTexture(party.heart_sprite)
+            end
+            Draw.draw(heart_sprite, tp_x - 20, tp_y + 10 + ((self.selected_spell - self.scroll_y) * 25))
 
             -- Draw scrollbar if needed (unless the spell limit is 2, in which case the scrollbar is too small)
             if spell_limit > 2 and #spells > spell_limit then
@@ -790,9 +817,9 @@ function Lib:init()
                 local spell = self:getSpells()[self.selected_spell]
                 if self:canCast(spell) then
                     self.state = "USE"
-                    if spell.target == "ally" or spell.target == "party" then
+                    if spell:getTarget() == "ally" or spell:getTarget() == "party" then
 
-                        local target_type = spell.target == "ally" and "SINGLE" or "ALL"
+                        local target_type = spell:getTarget() == "ally" and "SINGLE" or "ALL"
 
                         self:selectParty(target_type, spell)
                     else
@@ -873,8 +900,17 @@ function Lib:init()
 
             local x = 0
             local y = 0
-            Draw.setColor(Game.battle.encounter:getSoulColor())
-            Draw.draw(self.heart_sprite, 5 + ((Game.battle.current_menu_x - 1) * 230), 30 + ((Game.battle.current_menu_y - (page*3)) * 30))
+            local party = Game.battle.party[Game.battle.current_selecting].chara
+            if party.soul_color then
+                Draw.setColor(party.soul_color)
+            else
+                Draw.setColor(Game.battle.encounter:getSoulColor())
+            end
+            local heart_sprite = Assets.getTexture("player/"..party:getSoulFacing().."/heart")
+            if party.heart_sprite then
+                heart_sprite = Assets.getTexture(party.heart_sprite)
+            end
+            Draw.draw(heart_sprite, 5 + ((Game.battle.current_menu_x - 1) * 230), 30 + ((Game.battle.current_menu_y - (page*3)) * 30))
 
             local font = Assets.getFont("main")
             love.graphics.setFont(font)

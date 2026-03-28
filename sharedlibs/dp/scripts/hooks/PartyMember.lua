@@ -314,15 +314,15 @@ function PartyMember:getSkills()
                     ["callback"] = function(menu_item)
                         Game.battle.selected_spell = menu_item
 
-                        if not spell.target or spell.target == "none" then
+                        if not spell:getTarget() or spell:getTarget() == "none" then
                             Game.battle:pushAction("SPELL", nil, menu_item)
-                        elseif spell.target == "ally" then
+                        elseif spell:getTarget() == "ally" then
                             Game.battle:setState("PARTYSELECT", "SPELL")
-                        elseif spell.target == "enemy" then
+                        elseif spell:getTarget() == "enemy" then
                             Game.battle:setState("ENEMYSELECT", "SPELL")
-                        elseif spell.target == "party" then
+                        elseif spell:getTarget() == "party" then
                             Game.battle:pushAction("SPELL", Game.battle.party, menu_item)
-                        elseif spell.target == "enemies" then
+                        elseif spell:getTarget() == "enemies" then
                             Game.battle:pushAction("SPELL", Game.battle:getActiveEnemies(), menu_item)
                         end
                     end
@@ -349,15 +349,15 @@ function PartyMember:getSkills()
                     ["callback"] = function(menu_item)
 						Game.battle.selected_combo = menu_item
 
-                        if not combo.target or combo.target == "none" then
+                        if not combo:getTarget() or combo:getTarget() == "none" then
                             Game.battle:pushAction("COMBO", nil, menu_item)
-                        elseif combo.target == "ally" then
+                        elseif combo:getTarget() == "ally" then
                             Game.battle:setState("PARTYSELECT", "COMBO")
-                        elseif combo.target == "enemy" then
+                        elseif combo:getTarget() == "enemy" then
                             Game.battle:setState("ENEMYSELECT", "COMBO")
-                        elseif combo.target == "party" then
+                        elseif combo:getTarget() == "party" then
                             Game.battle:pushAction("COMBO", Game.battle.party, menu_item)
-                        elseif combo.target == "enemies" then
+                        elseif combo:getTarget() == "enemies" then
                             Game.battle:pushAction("COMBO", Game.battle:getActiveEnemies(), menu_item)
                         end
                     end
@@ -480,17 +480,17 @@ function PartyMember:getLightSkills()
 					["callback"] = function(menu_item)
 						Game.battle.selected_spell = menu_item
 
-						if not spell.target or spell.target == "none" then
+						if not spell:getTarget() or spell:getTarget() == "none" then
 							Game.battle:pushAction("SPELL", nil, menu_item)
-						elseif spell.target == "ally" and #Game.battle.party == 1 then
+						elseif spell:getTarget() == "ally" and #Game.battle.party == 1 then
 							Game.battle:pushAction("SPELL", Game.battle.party[1], menu_item)
-						elseif spell.target == "ally" then
+						elseif spell:getTarget() == "ally" then
 							Game.battle:setState("PARTYSELECT", "SPELL")
-						elseif spell.target == "enemy" then
+						elseif spell:getTarget() == "enemy" then
 							Game.battle:setState("ENEMYSELECT", "SPELL")
-						elseif spell.target == "party" then
+						elseif spell:getTarget() == "party" then
 							Game.battle:pushAction("SPELL", Game.battle.party, menu_item)
-						elseif spell.target == "enemies" then
+						elseif spell:getTarget() == "enemies" then
 							Game.battle:pushAction("SPELL", Game.battle:getActiveEnemies(), menu_item)
 						end
 					end
@@ -500,6 +500,15 @@ function PartyMember:getLightSkills()
 			Game.battle:setState("MENUSELECT", "SPELL")
         end}
     }
+end
+
+function PartyMember:getStat(name, default, light)
+    local stat = super.getStat(self, name, default, light)
+    if name == "attack" then
+        local success, amount = self:checkArmor("master_medallion")
+        stat = stat * (2^amount)
+    end
+    return stat
 end
 
 function PartyMember:getLevel()

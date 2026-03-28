@@ -56,6 +56,7 @@ function actor:init()
         ["battle/hurt"]         		= {"battle/hurt", 1/15, false, temp=true, duration=0.5},
         ["battle/defeat"]       		= {"battle/defeat", 0.5, true},
         ["battle/swooned"]              = {"battle/swooned", 1/15, false},
+        ["battle/succumbed"]            = {"battle/swooned", 1/15, false},
 
         ["battle/transition"]   		= {"walk/right", 0.2, true},
         ["battle/intro"]        		= {"battle/attack", 1/15, true},
@@ -64,6 +65,8 @@ function actor:init()
         ["battle/tactic_freeze"] 		= {"battle/tactic_freeze", 1/15, false},
         ["battle/tactic_freeze_shiny"] 	= {"battle/tactic_freeze_shiny", 1/15, false},
 
+        ["battle/charge"]               = {"battle/charge", 1/6, true},
+
 		-- Cutscene animations
         ["jump_ball"]           = {"ball", 1/15, true},
 		["sit"]               	= {"sit", 4/30, true},
@@ -71,35 +74,6 @@ function actor:init()
 		["dance"]               = {"dance", 1/10, true},
 
         ["pirouette"]           = {"pirouette", 4/30, true},
-    }
-
-    self.animations_dk = {
-        -- Movement animations
-        ["slide"]               = {"slide_hurt", 4/30, true},
-
-        -- Battle animations
-        ["battle/idle"]         = {"battle_dungeonkiller/idle", 0.2, true},
-
-        ["battle/attack"]       = {"battle_dungeonkiller/attack", 1/15, false},
-        ["battle/act"]          = {"battle_dungeonkiller/act", 1/15, false},
-        ["battle/spell"]        = {"battle_dungeonkiller/spell", 1/15, false},
-        ["battle/item"]         = {"battle_dungeonkiller/item", 1/15, false, next="battle/idle"},
-        ["battle/spare"]        = {"battle_dungeonkiller/act", 1/15, false, next="battle/idle"},
-
-        ["battle/attack_ready"] = {"battle_dungeonkiller/attackready", 0.2, true},
-        ["battle/act_ready"]    = {"battle_dungeonkiller/actready", 0.2, true},
-        ["battle/spell_ready"]  = {"battle_dungeonkiller/actready", 0.2, true},
-        ["battle/item_ready"]   = {"battle_dungeonkiller/itemready", 0.2, true},
-        ["battle/defend_ready"] = {"battle_dungeonkiller/defend", 1/15, false},
-
-        ["battle/act_end"]      = {"battle_dungeonkiller/actend", 1/15, false, next="battle/idle"},
-
-        ["battle/hurt"]         = {"battle_dungeonkiller/hurt", 1/15, false, temp=true, duration=0.5},
-        ["battle/defeat"]       = {"battle_dungeonkiller/defeat", 0.5, true},
-
-        ["battle/transition"]   = {"walk_shadowed/right", 0.2, true},
-        ["battle/intro"]        = {"battle_dungeonkiller/attack", 1/15, true},
-        ["battle/victory"]      = {"battle_dungeonkiller/victory", 1/10, false},
     }
 
     -- Table of sprite offsets (indexed by sprite name)
@@ -146,6 +120,8 @@ function actor:init()
         ["battle/tactic_freeze"] = {-9, -3},
         ["battle/tactic_freeze_shiny"] = {-9, -3},
 
+        ["battle/charge"] = {-9, -3},
+
 		["ball"] = {0, 18},
 
         ["talk_to_marcy"] = {0, 13},
@@ -161,7 +137,7 @@ function actor:init()
 
         --- Climbing offsets
         ["climb/climb"] = {-4, 8},
-        ["climb/charge"] = {-4, 8},
+        ["climb/charge"] = {-4, 11},
         ["climb/slip_left"] = {-4, 8},
         ["climb/slip_right"] = {-4, 8},
         ["climb/land_left"] = {-4, 8},

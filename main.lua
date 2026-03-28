@@ -50,6 +50,7 @@ Game = Kristal.States["Game"]
 MainMenu = Kristal.States["MainMenu"]
 LoadingState = Kristal.States["Loading"]
 
+Sound = require("src.engine.sound")
 Assets = require("src.engine.assets")
 Music = require("src.engine.music")
 Input = require("src.engine.input")
@@ -301,6 +302,8 @@ Mend = require("src.engine.game.battle.mend")
 
 BlueSoul = require("src.engine.game.battle.souls.bluesoul")
 
+BattleBackground = require("src.engine.game.battle.ui.battlebackground")
+BattleDarkener = require("src.engine.game.battle.ui.battledarkener")
 BattleUI = require("src.engine.game.battle.ui.battleui")
 ActionBox = require("src.engine.game.battle.ui.actionbox")
 ActionBoxDisplay = require("src.engine.game.battle.ui.actionboxdisplay")

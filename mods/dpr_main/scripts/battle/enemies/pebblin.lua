@@ -22,12 +22,7 @@ function Pebblin:init()
     self.spare_points = 20
 
     self.waves = {
-        "pebblin/pebbledrop",
         "pebblin/club"
-    }
-
-    self.dialogue = {
-        "..."
     }
 
     self.check = "AT 3 DF 5\n* Proud warrior of Cliffside.\n* Has a cobbled together club."
@@ -41,12 +36,16 @@ function Pebblin:init()
 
     self:registerAct("Polish")
     self:registerAct("X-Polish", "", {"susie"})
+
+    self.resistances = {
+        DARK = 0.5,
+    }
 end
 
 function Pebblin:onAct(battler, name)
     if name == "Polish" then
         self:addMercy(100)
-        self.dialogue_override = "Dziekuje!"
+        self.dialogue_override = Utils.pick{"Dziękuję!", "Wielkie dzięki!", "Jestem wdzięczny!", "Dzięki!"}
         return "* You cooked some Perogis for Pebblin.\n* It looks like they were just hungry."
 
     elseif name == "X-Polish" then
@@ -54,7 +53,8 @@ function Pebblin:onAct(battler, name)
             if enemy.id == "pebblin" then
                 enemy:setTired(true)
                 enemy.attack = enemy.attack + 2
-                enemy.dialogue_override = "...?!"
+                enemy.dialogue_override = "?!?!"
+                enemy:setAnimation("prepare")
             end
         end
         return {
@@ -70,6 +70,13 @@ function Pebblin:onAct(battler, name)
     -- If the act is none of the above, run the base onAct function
     -- (this handles the Check act)
     return super.onAct(self, battler, name)
+end
+
+function Pebblin:onSpareable()
+    super.onSpareable(self)
+    self.waves = {
+        "pebblin/pebbledrop",
+    }
 end
 
 function Pebblin:onDefeat(damage, battler)
@@ -96,6 +103,28 @@ function Pebblin:onDefeatFatal(damage, battler)
     self:addChild(death)
 
     self:defeat("KILLED", true)
+end
+
+function Pebblin:getEnemyDialogue()
+    local dialogue
+    if self.dialogue_override then
+        local dialogue = self.dialogue_override
+        self.dialogue_override = nil
+        return dialogue
+    end
+
+    if self:canSpare() then
+        dialogue = {
+            "Perfekcja!\nCo za styl!",
+            "Zrobione\njak trzeba!",
+            "Majstersztyk!"
+        }
+    else
+        dialogue = {
+            "..."
+        }
+    end
+    return "[float:2]" .. dialogue[math.random(#dialogue)]
 end
 
 return Pebblin
